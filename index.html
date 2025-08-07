@@ -2,27 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BOQ Estimator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOQ Estimator App</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-  <div class="container" id="boq-container">
+  <div class="container">
     <h1>BOQ Estimator</h1>
+
     <div class="input-group">
       <input type="text" id="itemName" placeholder="Item Name" />
       <input type="text" id="unit" placeholder="Unit" />
       <input type="number" id="quantity" placeholder="Quantity" />
       <input type="number" id="rate" placeholder="Rate" />
       <button onclick="addRow()">Add Row</button>
-    </div>
-
-    <div class="action-buttons">
-      <button onclick="calculateTotal()">Calculate Total</button>
-      <button onclick="exportTableToExcel()">Export to Excel</button>
-      <button onclick="exportToPDF()">Export to PDF</button>
     </div>
 
     <table id="boq-table">
@@ -36,12 +29,15 @@
         </tr>
       </thead>
       <tbody id="boq-body">
-        <!-- Rows go here -->
+        <!-- Rows will be added here dynamically -->
       </tbody>
     </table>
 
-    <div class="total">
-      <strong>Total: ₦<span id="total-amount">0.00</span></strong>
+    <div class="total-section">
+      <h3>Total: ₦<span id="totalAmount">0.00</span></h3>
+      <button onclick="calculateTotal()">Calculate Total</button>
+      <button onclick="downloadExcel()">Export to Excel</button>
+      <button onclick="downloadPDF()">Export to PDF</button>
     </div>
   </div>
 
