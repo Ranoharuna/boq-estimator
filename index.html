@@ -6,9 +6,45 @@
   <title>BOQ Estimator</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="boq-container">
     <h1>BOQ Estimator</h1>
     <div class="input-group">
-      <input type="text" id="itemName"
+      <input type="text" id="itemName" placeholder="Item Name" />
+      <input type="text" id="unit" placeholder="Unit" />
+      <input type="number" id="quantity" placeholder="Quantity" />
+      <input type="number" id="rate" placeholder="Rate" />
+      <button onclick="addRow()">Add Row</button>
+    </div>
+
+    <div class="action-buttons">
+      <button onclick="calculateTotal()">Calculate Total</button>
+      <button onclick="exportTableToExcel()">Export to Excel</button>
+      <button onclick="exportToPDF()">Export to PDF</button>
+    </div>
+
+    <table id="boq-table">
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>Unit</th>
+          <th>Quantity</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="boq-body">
+        <!-- Rows go here -->
+      </tbody>
+    </table>
+
+    <div class="total">
+      <strong>Total: ₦<span id="total-amount">0.00</span></strong>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
