@@ -1,3 +1,4 @@
+// === Add New Row ===
 function addRow() {
   const itemName = document.getElementById("itemName").value;
   const unit = document.getElementById("unit").value;
@@ -10,10 +11,9 @@ function addRow() {
   }
 
   const amount = quantity * rate;
-
   const tableBody = document.getElementById("boq-body");
-  const row = tableBody.insertRow();
 
+  const row = document.createElement("tr");
   row.innerHTML = `
     <td>${itemName}</td>
     <td>${unit}</td>
@@ -21,6 +21,10 @@ function addRow() {
     <td>${rate}</td>
     <td>${amount.toFixed(2)}</td>
   `;
+  tableBody.appendChild(row);
+
+  saveRowToStorage({ itemName, unit, quantity, rate, amount });
+  calculateTotal();
 
   document.getElementById("itemName").value = "";
   document.getElementById("unit").value = "";
@@ -28,40 +32,40 @@ function addRow() {
   document.getElementById("rate").value = "";
 }
 
+// === Calculate Total ===
 function calculateTotal() {
-  const tableBody = document.getElementById("boq-body");
+  const table = document.getElementById("boq-body");
   let total = 0;
 
-  for (let i = 0; i < tableBody.rows.length; i++) {
-    const amount = parseFloat(tableBody.rows[i].cells[4].innerText);
+  for (let i = 0; i < table.rows.length; i++) {
+    const amount = parseFloat(table.rows[i].cells[4].innerText);
     total += amount;
   }
 
-  document.getElementById("total-amount").innerText = total.toFixed(2);
+  document.getElementById("totalAmount").innerText = total.toFixed(2);
 }
 
-function exportTableToExcel() {
-  const table = document.getElementById("boq-table");
-  const wb = XLSX.utils.table_to_book(table, { sheet: "BOQ" });
-  XLSX.writeFile(wb, "boq-estimate.xlsx");
-}
+// === Export to PDF ===
 function exportToPDF() {
-  const element = document.getElementById("boq-container");
+  const element = document.getElementById("boq-table");
   const opt = {
     margin:       0.5,
-    filename:     'boq-estimate.pdf',
+    filename:     'boq_estimate.pdf',
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-  html2pdf().set(opt).from(element).save();
+  html2pdf().from(element).set(opt).save();
 }
+
+// === Save to Browser Storage ===
 function saveRowToStorage(rowData) {
   let rows = JSON.parse(localStorage.getItem("boqRows")) || [];
   rows.push(rowData);
   localStorage.setItem("boqRows", JSON.stringify(rows));
 }
 
+// === Load on Page Load ===
 function loadRowsFromStorage() {
   const rows = JSON.parse(localStorage.getItem("boqRows")) || [];
   const tableBody = document.getElementById("boq-body");
@@ -82,5 +86,5 @@ function loadRowsFromStorage() {
   calculateTotal();
 }
 
-// Load data on page load
+// === Load saved rows when page loads ===
 window.onload = loadRowsFromStorage;
