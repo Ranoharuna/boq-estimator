@@ -56,3 +56,31 @@ function exportToPDF() {
   };
   html2pdf().set(opt).from(element).save();
 }
+function saveRowToStorage(rowData) {
+  let rows = JSON.parse(localStorage.getItem("boqRows")) || [];
+  rows.push(rowData);
+  localStorage.setItem("boqRows", JSON.stringify(rows));
+}
+
+function loadRowsFromStorage() {
+  const rows = JSON.parse(localStorage.getItem("boqRows")) || [];
+  const tableBody = document.getElementById("boq-body");
+  tableBody.innerHTML = "";
+
+  rows.forEach((data) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${data.itemName}</td>
+      <td>${data.unit}</td>
+      <td>${data.quantity}</td>
+      <td>${data.rate}</td>
+      <td>${data.amount.toFixed(2)}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  calculateTotal();
+}
+
+// Load data on page load
+window.onload = loadRowsFromStorage;
