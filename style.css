@@ -1,4 +1,4 @@
-/* Reset some default styles */
+]/* Reset some default styles */
 * {
   margin: 0;
   padding: 0;
@@ -78,4 +78,23 @@ table th {
   font-weight: bold;
   text-align: right;
   color: #007700;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  background-color: #004080;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  height: 50px;
+  margin-right: 15px;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0;
 }
