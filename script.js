@@ -1,49 +1,47 @@
-// Select elements
-const addItemBtn = document.getElementById('add-item-btn');
-const calculateTotalBtn = document.getElementById('calculate-total-btn');
-const boqTableBody = document.querySelector('#boq-table tbody');
-const totalAmountDisplay = document.getElementById('total-amount');
+function addRow() {
+  const itemName = document.getElementById("itemName").value;
+  const unit = document.getElementById("unit").value;
+  const quantity = parseFloat(document.getElementById("quantity").value);
+  const rate = parseFloat(document.getElementById("rate").value);
 
-// Store all rows in an array
-let boqItems = [];
+  if (!itemName || !unit || isNaN(quantity) || isNaN(rate)) {
+    alert("Please fill in all fields correctly.");
+    return;
+  }
 
-// Function to add item to table
-addItemBtn.addEventListener('click', () => {
-    const itemName = document.getElementById('item-name').value.trim();
-    const unit = document.getElementById('unit').value.trim();
-    const quantity = parseFloat(document.getElementById('quantity').value);
-    const rate = parseFloat(document.getElementById('rate').value);
+  const amount = quantity * rate;
 
-    if (!itemName || !unit || isNaN(quantity) || isNaN(rate)) {
-        alert("Please fill in all fields with valid values.");
-        return;
-    }
+  const tableBody = document.getElementById("boq-body");
+  const row = tableBody.insertRow();
 
-    const amount = quantity * rate;
+  row.innerHTML = `
+    <td>${itemName}</td>
+    <td>${unit}</td>
+    <td>${quantity}</td>
+    <td>${rate}</td>
+    <td>${amount.toFixed(2)}</td>
+  `;
 
-    // Save item to array
-    boqItems.push({ itemName, unit, quantity, rate, amount });
+  document.getElementById("itemName").value = "";
+  document.getElementById("unit").value = "";
+  document.getElementById("quantity").value = "";
+  document.getElementById("rate").value = "";
+}
 
-    // Update table
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${itemName}</td>
-        <td>${unit}</td>
-        <td>${quantity}</td>
-        <td>${rate}</td>
-        <td>${amount.toFixed(2)}</td>
-    `;
-    boqTableBody.appendChild(row);
+function calculateTotal() {
+  const tableBody = document.getElementById("boq-body");
+  let total = 0;
 
-    // Clear inputs
-    document.getElementById('item-name').value = '';
-    document.getElementById('unit').value = '';
-    document.getElementById('quantity').value = '';
-    document.getElementById('rate').value = '';
-});
+  for (let i = 0; i < tableBody.rows.length; i++) {
+    const amount = parseFloat(tableBody.rows[i].cells[4].innerText);
+    total += amount;
+  }
 
-// Function to calculate total
-calculateTotalBtn.addEventListener('click', () => {
-    const total = boqItems.reduce((sum, item) => sum + item.amount, 0);
-    totalAmountDisplay.textContent = `₦${total.toFixed(2)}`;
-});
+  document.getElementById("total-amount").innerText = total.toFixed(2);
+}
+
+function exportTableToExcel() {
+  const table = document.getElementById("boq-table");
+  const wb = XLSX.utils.table_to_book(table, { sheet: "BOQ" });
+  XLSX.writeFile(wb, "boq-estimate.xlsx");
+}
