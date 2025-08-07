@@ -5,40 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BOQ Estimator</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>BOQ Estimator App</h1>
-
-    <div class="form">
-      <input type="text" id="item" placeholder="Item Name" />
-      <input type="text" id="unit" placeholder="Unit (e.g. m², pcs)" />
-      <input type="number" id="quantity" placeholder="Quantity" />
-      <input type="number" id="rate" placeholder="Rate (₦)" />
-      <button id="add-btn">Add Row</button>
-      <button id="calc-btn">Calculate Total</button>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Unit</th>
-          <th>Quantity</th>
-          <th>Rate (₦)</th>
-          <th>Amount (₦)</th>
-        </tr>
-      </thead>
-      <tbody id="boq-body">
-        <!-- Rows will be added here -->
-      </tbody>
-    </table>
-
-    <div id="total" class="total-display">
-      Total BOQ Amount: ₦0.00
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
+    <h1>BOQ Estimator</h1>
+    <div class="input-group">
+      <input type="text" id="itemName"
