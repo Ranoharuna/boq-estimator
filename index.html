@@ -8,133 +8,54 @@
 </head>
 <body>
 
-    <!-- Header with Logo -->
+    <!-- Header with logo and title -->
     <header>
-        <img src="logo.png" alt="BOQ Estimator Logo">
+        <img src="logo.png" alt="BOQ Estimator Logo" class="logo">
         <h1>BOQ Estimator</h1>
     </header>
 
-    <div class="container">
-        <!-- Form for adding items -->
+    <!-- Form for input -->
+    <section class="form-section">
         <input type="text" id="itemName" placeholder="Item Name">
         <input type="text" id="unit" placeholder="Unit">
         <input type="number" id="quantity" placeholder="Quantity">
         <input type="number" id="rate" placeholder="Rate">
-        <button onclick="addItem()">Add Item</button>
-        <button onclick="clearTable()">🧼 Clear Table</button>
-        <button onclick="printTable()">🖨 Print</button>
 
-        <!-- Table for displaying items -->
-        <table id="boqTable">
+        <button onclick="addRow()">Add Row</button>
+        <button onclick="clearTable()">Clear All</button>
+    </section>
+
+    <!-- Table -->
+    <section class="table-section">
+        <table id="boq-table">
             <thead>
                 <tr>
                     <th>Item Name</th>
                     <th>Unit</th>
                     <th>Quantity</th>
                     <th>Rate</th>
-                    <th>Amount</th>
+                    <th>Total</th>
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4">Total</td>
-                    <td id="totalAmount">0</td>
-                    <td></td>
-                </tr>
-            </tfoot>
+            <tbody id="boq-body">
+                <!-- Rows will be added here -->
+            </tbody>
         </table>
+    </section>
+
+    <!-- Total -->
+    <div class="total-container">
+        <strong>Total BOQ Value: ₦<span id="totalAmount">0.00</span></strong>
     </div>
 
-    <script>
-        function addItem() {
-            let itemName = document.getElementById('itemName').value;
-            let unit = document.getElementById('unit').value;
-            let quantity = parseFloat(document.getElementById('quantity').value) || 0;
-            let rate = parseFloat(document.getElementById('rate').value) || 0;
-            let amount = quantity * rate;
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button onclick="exportTableToExcel()">Export to Excel</button>
+        <button onclick="exportTableToPDF()">Export to PDF</button>
+        <button onclick="window.print()">Print</button>
+    </div>
 
-            if (itemName.trim() === '' || unit.trim() === '' || quantity <= 0 || rate <= 0) {
-                alert('Please fill all fields correctly.');
-                return;
-            }
-
-            let table = document.getElementById('boqTable').getElementsByTagName('tbody')[0];
-            let row = table.insertRow();
-            row.innerHTML = `
-                <td>${itemName}</td>
-                <td>${unit}</td>
-                <td>${quantity}</td>
-                <td>${rate}</td>
-                <td>${amount}</td>
-                <td><button onclick="deleteRow(this)">❌ Delete</button></td>
-            `;
-
-            updateTotal();
-            saveData();
-        }
-
-        function deleteRow(button) {
-            button.closest('tr').remove();
-            updateTotal();
-            saveData();
-        }
-
-        function clearTable() {
-            if (confirm('Are you sure you want to clear the table?')) {
-                document.querySelector('#boqTable tbody').innerHTML = '';
-                updateTotal();
-                saveData();
-            }
-        }
-
-        function updateTotal() {
-            let total = 0;
-            document.querySelectorAll('#boqTable tbody tr').forEach(row => {
-                let amount = parseFloat(row.cells[4].innerText) || 0;
-                total += amount;
-            });
-            document.getElementById('totalAmount').innerText = total.toFixed(2);
-        }
-
-        function saveData() {
-            let tableData = [];
-            document.querySelectorAll('#boqTable tbody tr').forEach(row => {
-                let rowData = [];
-                for (let i = 0; i < 5; i++) {
-                    rowData.push(row.cells[i].innerText);
-                }
-                tableData.push(rowData);
-            });
-            localStorage.setItem('boqData', JSON.stringify(tableData));
-        }
-
-        function loadData() {
-            let tableData = JSON.parse(localStorage.getItem('boqData') || '[]');
-            let table = document.getElementById('boqTable').getElementsByTagName('tbody')[0];
-            table.innerHTML = '';
-            tableData.forEach(rowData => {
-                let row = table.insertRow();
-                row.innerHTML = `
-                    <td>${rowData[0]}</td>
-                    <td>${rowData[1]}</td>
-                    <td>${rowData[2]}</td>
-                    <td>${rowData[3]}</td>
-                    <td>${rowData[4]}</td>
-                    <td><button onclick="deleteRow(this)">❌ Delete</button></td>
-                `;
-            });
-            updateTotal();
-        }
-
-        function printTable() {
-            window.print();
-        }
-
-        // Load saved data when page opens
-        window.onload = loadData;
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
