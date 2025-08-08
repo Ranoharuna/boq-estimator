@@ -1,116 +1,76 @@
-// Load data on startup
-window.onload = function () {
-  loadDataFromLocalStorage();
-  calculateTotal(); // show total if data exists
-};
+document.addEventListener("DOMContentLoaded", () => {
+    const tableBody = document.querySelector("#boqTable tbody");
+    const addRowBtn = document.getElementById("addRow");
+    const clearTableBtn = document.getElementById("clearTable");
 
-function addRow() {
-  const itemName = document.getElementById("itemName").value;
-  const unit = document.getElementById("unit").value;
-  const quantity = parseFloat(document.getElementById("quantity").value);
-  const rate = parseFloat(document.getElementById("rate").value);
+    // Load saved data
+    loadTableData();
 
-  if (!itemName || !unit || isNaN(quantity) || isNaN(rate)) {
-    alert("Please fill in all fields correctly.");
-    return;
-  }
+    // Add new row
+    addRowBtn.addEventListener("click", () => {
+        addRow();
+        saveTableData();
+    });
 
-  const amount = quantity * rate;
-  const table = document.getElementById("boq-body");
+    // Clear table
+    clearTableBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to clear all rows?")) {
+            tableBody.innerHTML = "";
+            saveTableData();
+        }
+    });
 
-  const row = table.insertRow();
-  row.innerHTML = `
-    <td>${itemName}</td>
-    <td>${unit}</td>
-    <td>${quantity}</td>
-    <td>${rate}</td>
-    <td>${amount.toFixed(2)}</td>
-  `;
+    // Function to add row
+    function addRow(data = {}) {
+        const row = document.createElement("tr");
 
-  // Clear inputs
-  document.getElementById("itemName").value = "";
-  document.getElementById("unit").value = "";
-  document.getElementById("quantity").value = "";
-  document.getElementById("rate").value = "";
+        row.innerHTML = `
+            <td><input type="text" value="${data.item || ''}"></td>
+            <td><input type="number" value="${data.qty || ''}" min="0"></td>
+            <td><input type="text" value="${data.unit || ''}"></td>
+            <td><input type="number" value="${data.rate || ''}" min="0"></td>
+            <td><input type="number" value="${data.amount || ''}" readonly></td>
+            <td><button class="delete-btn">❌</button></td>
+        `;
 
-  calculateTotal();
-  saveDataToLocalStorage();
-}
+        // Delete button event
+        row.querySelector(".delete-btn").addEventListener("click", () => {
+            row.remove();
+            saveTableData();
+        });
 
-function calculateTotal() {
-  const rows = document.querySelectorAll("#boq-body tr");
-  let total = 0;
+        // Auto-calc amount
+        row.querySelectorAll("input").forEach(input => {
+            input.addEventListener("input", () => {
+                const qty = parseFloat(row.children[1].querySelector("input").value) || 0;
+                const rate = parseFloat(row.children[3].querySelector("input").value) || 0;
+                row.children[4].querySelector("input").value = (qty * rate).toFixed(2);
+                saveTableData();
+            });
+        });
 
-  rows.forEach((row) => {
-    const amount = parseFloat(row.cells[4].textContent);
-    total += amount;
-  });
+        tableBody.appendChild(row);
+    }
 
-  document.getElementById("totalAmount").textContent = total.toFixed(2);
-}
+    // Save table data to localStorage
+    function saveTableData() {
+        const rows = [];
+        tableBody.querySelectorAll("tr").forEach(tr => {
+            const inputs = tr.querySelectorAll("input");
+            rows.push({
+                item: inputs[0].value,
+                qty: inputs[1].value,
+                unit: inputs[2].value,
+                rate: inputs[3].value,
+                amount: inputs[4].value
+            });
+        });
+        localStorage.setItem("boqTableData", JSON.stringify(rows));
+    }
 
-// ---------- Export to Excel ----------
-function downloadExcel() {
-  let table = document.getElementById("boq-table");
-  let html = table.outerHTML;
-
-  const blob = new Blob([html], { type: "application/vnd.ms-excel" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-
-  a.href = url;
-  a.download = "BOQ_Estimate.xls";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ---------- Export to PDF ----------
-function downloadPDF() {
-  const table = document.getElementById("boq-table").outerHTML;
-  const total = document.getElementById("totalAmount").textContent;
-
-  const win = window.open("", "", "height=700,width=900");
-  win.document.write("<html><head><title>BOQ Estimate PDF</title></head><body>");
-  win.document.write("<h2>BOQ Estimate</h2>");
-  win.document.write(table);
-  win.document.write(`<h3>Total: ₦${total}</h3>`);
-  win.document.write("</body></html>");
-  win.document.close();
-  win.print();
-}
-
-// ---------- Save to Local Storage ----------
-function saveDataToLocalStorage() {
-  const rows = document.querySelectorAll("#boq-body tr");
-  let data = [];
-
-  rows.forEach((row) => {
-    let rowData = {
-      itemName: row.cells[0].textContent,
-      unit: row.cells[1].textContent,
-      quantity: row.cells[2].textContent,
-      rate: row.cells[3].textContent,
-      amount: row.cells[4].textContent,
-    };
-    data.push(rowData);
-  });
-
-  localStorage.setItem("boqData", JSON.stringify(data));
-}
-
-// ---------- Load from Local Storage ----------
-function loadDataFromLocalStorage() {
-  const data = JSON.parse(localStorage.getItem("boqData")) || [];
-  const table = document.getElementById("boq-body");
-
-  data.forEach((rowData) => {
-    const row = table.insertRow();
-    row.innerHTML = `
-      <td>${rowData.itemName}</td>
-      <td>${rowData.unit}</td>
-      <td>${rowData.quantity}</td>
-      <td>${rowData.rate}</td>
-      <td>${rowData.amount}</td>
-    `;
-  });
-}
+    // Load table data from localStorage
+    function loadTableData() {
+        const savedData = JSON.parse(localStorage.getItem("boqTableData") || "[]");
+        savedData.forEach(row => addRow(row));
+    }
+});
