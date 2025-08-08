@@ -87,7 +87,49 @@ table th {
   padding: 10px 20px;
   border-radius: 5px;
   margin-bottom: 20px;
+}/* ===== Mobile Responsive Styles ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    input, button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
 }
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 18px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
 
 .logo {
   height: 50px;
