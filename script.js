@@ -1,126 +1,112 @@
-// === Select DOM elements ===
-const boqTable = document.getElementById('boqTable').getElementsByTagName('tbody')[0];
-const totalCostEl = document.getElementById('totalCost');
-
-const descInput = document.getElementById('description');
-const qtyInput = document.getElementById('quantity');
-const unitInput = document.getElementById('unit');
-const priceInput = document.getElementById('price');
-
-// === Add row ===
+// ==== Add Row ====
 function addRow() {
-    const description = descInput.value.trim();
-    const quantity = parseFloat(qtyInput.value);
-    const unit = unitInput.value.trim();
-    const price = parseFloat(priceInput.value);
+    let item = document.getElementById("item").value.trim();
+    let qty = parseFloat(document.getElementById("quantity").value);
+    let rate = parseFloat(document.getElementById("rate").value);
 
-    if (!description || isNaN(quantity) || !unit || isNaN(price)) {
+    if (item === "" || isNaN(qty) || isNaN(rate)) {
         alert("Please fill in all fields correctly.");
         return;
     }
 
-    const total = quantity * price;
+    let table = document.getElementById("boqTable").getElementsByTagName('tbody')[0];
+    let row = table.insertRow();
 
-    const row = boqTable.insertRow();
     row.innerHTML = `
-        <td>${description}</td>
-        <td>${quantity}</td>
-        <td>${unit}</td>
-        <td>${price.toFixed(2)}</td>
-        <td>${total.toFixed(2)}</td>
-        <td><button onclick="deleteRow(this)">Delete</button></td>
+        <td>${item}</td>
+        <td>${qty}</td>
+        <td>${rate.toFixed(2)}</td>
+        <td>${(qty * rate).toFixed(2)}</td>
+        <td><button onclick="deleteRow(this)">❌</button></td>
     `;
 
     saveData();
-    updateTotalCost();
-    clearForm();
+    updateTotal();
+    clearInputs();
 }
 
-// === Delete single row ===
+// ==== Delete Row ====
 function deleteRow(button) {
-    const row = button.parentNode.parentNode;
-    boqTable.deleteRow(row.rowIndex - 1); // Adjust index
+    button.closest("tr").remove();
     saveData();
-    updateTotalCost();
+    updateTotal();
 }
 
-// === Clear form inputs ===
-function clearForm() {
-    descInput.value = "";
-    qtyInput.value = "";
-    unitInput.value = "";
-    priceInput.value = "";
-}
-
-// === Clear all rows ===
+// ==== Clear All Rows ====
 function clearAll() {
-    if (confirm("Are you sure you want to clear all rows?")) {
-        boqTable.innerHTML = "";
+    if (confirm("Are you sure you want to clear all items?")) {
+        document.getElementById("boqTable").getElementsByTagName('tbody')[0].innerHTML = "";
         saveData();
-        updateTotalCost();
+        updateTotal();
     }
 }
 
-// === Update total cost ===
-function updateTotalCost() {
+// ==== Clear Inputs ====
+function clearInputs() {
+    document.getElementById("item").value = "";
+    document.getElementById("quantity").value = "";
+    document.getElementById("rate").value = "";
+}
+
+// ==== Update Total ====
+function updateTotal() {
     let total = 0;
-    for (let i = 0; i < boqTable.rows.length; i++) {
-        total += parseFloat(boqTable.rows[i].cells[4].textContent);
-    }
-    totalCostEl.textContent = total.toFixed(2);
+    document.querySelectorAll("#boqTable tbody tr").forEach(row => {
+        total += parseFloat(row.cells[3].textContent);
+    });
+    document.getElementById("totalAmount").textContent = total.toFixed(2);
 }
 
-// === Save to localStorage ===
+// ==== Save to Local Storage ====
 function saveData() {
-    const rows = [];
-    for (let i = 0; i < boqTable.rows.length; i++) {
-        const cells = boqTable.rows[i].cells;
+    let rows = [];
+    document.querySelectorAll("#boqTable tbody tr").forEach(row => {
         rows.push({
-            description: cells[0].textContent,
-            quantity: cells[1].textContent,
-            unit: cells[2].textContent,
-            price: cells[3].textContent,
-            total: cells[4].textContent
+            item: row.cells[0].textContent,
+            qty: row.cells[1].textContent,
+            rate: row.cells[2].textContent
         });
-    }
+    });
     localStorage.setItem("boqData", JSON.stringify(rows));
 }
 
-// === Load from localStorage ===
+// ==== Load from Local Storage ====
 function loadData() {
-    const rows = JSON.parse(localStorage.getItem("boqData")) || [];
-    rows.forEach(item => {
-        const row = boqTable.insertRow();
-        row.innerHTML = `
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>${item.unit}</td>
-            <td>${parseFloat(item.price).toFixed(2)}</td>
-            <td>${parseFloat(item.total).toFixed(2)}</td>
-            <td><button onclick="deleteRow(this)">Delete</button></td>
+    let data = JSON.parse(localStorage.getItem("boqData")) || [];
+    let table = document.getElementById("boqTable").getElementsByTagName('tbody')[0];
+    table.innerHTML = "";
+    data.forEach(row => {
+        let newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td>${row.item}</td>
+            <td>${row.qty}</td>
+            <td>${parseFloat(row.rate).toFixed(2)}</td>
+            <td>${(row.qty * row.rate).toFixed(2)}</td>
+            <td><button onclick="deleteRow(this)">❌</button></td>
         `;
     });
-    updateTotalCost();
+    updateTotal();
 }
 
-// === Export to Excel ===
-function exportToExcel() {
-    const tableClone = document.getElementById('boqTable').cloneNode(true);
-    tableClone.deleteTHead(); // Remove table headers if needed
-
-    let wb = XLSX.utils.table_to_book(document.getElementById('boqTable'), { sheet: "BOQ" });
-    XLSX.writeFile(wb, 'BOQ_Estimator.xlsx');
+// ==== Export to Excel ====
+function exportExcel() {
+    let table = document.getElementById("boqTable");
+    let wb = XLSX.utils.table_to_book(table, { sheet: "BOQ" });
+    XLSX.writeFile(wb, "BOQ_Estimate.xlsx");
 }
 
-// === Export to PDF ===
-function exportToPDF() {
+// ==== Export to PDF ====
+function exportPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.text("BOQ Estimator", 14, 10);
-    doc.autoTable({ html: '#boqTable', startY: 20 });
-    doc.save("BOQ_Estimator.pdf");
+    let doc = new jsPDF();
+    doc.autoTable({ html: "#boqTable" });
+    doc.save("BOQ_Estimate.pdf");
 }
 
-// === Initialize ===
+// ==== Print Table ====
+function printBOQ() {
+    window.print();
+}
+
+// ==== On Load ====
 window.onload = loadData;
