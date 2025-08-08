@@ -110,3 +110,38 @@ function printBOQ() {
 
 // ==== On Load ====
 window.onload = loadData;
+window.addEventListener('DOMContentLoaded', () => {
+  const data = localStorage.getItem('takeoffData');
+  if (data) {
+    const takeoffItems = JSON.parse(data);
+
+    // Example: add each item to your BOQ table
+    const boqTableBody = document.querySelector('#boq-table tbody'); // change selector accordingly
+    takeoffItems.forEach(item => {
+      const tr = document.createElement('tr');
+
+      // Create cells for description, quantity, rate (empty), total (calculated later)
+      const descTd = document.createElement('td');
+      descTd.textContent = item.description;
+      const qtyTd = document.createElement('td');
+      qtyTd.textContent = item.quantity;
+      const rateTd = document.createElement('td');
+      rateTd.innerHTML = '<input type="number" class="rate-input" value="0" />';
+      const totalTd = document.createElement('td');
+      totalTd.textContent = '0';
+
+      tr.appendChild(descTd);
+      tr.appendChild(qtyTd);
+      tr.appendChild(rateTd);
+      tr.appendChild(totalTd);
+
+      boqTableBody.appendChild(tr);
+    });
+
+    // Clear the localStorage after loading to avoid duplication on reload
+    localStorage.removeItem('takeoffData');
+
+    // Optionally trigger any recalculation logic you have
+    recalculateBOQTotals();
+  }
+});
